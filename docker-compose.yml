@@ -1,0 +1,29 @@
+services:
+  mjolnir:
+    image: ghcr.io/st0o0/mjolnir:latest
+    # build: .
+    container_name: mjolnir
+    restart: unless-stopped
+    ports:
+      - "3493:3493"
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    environment:
+      NUT_UPS_1_NAME: ecoflow
+      NUT_UPS_1_DRIVER: usbhid-ups
+      NUT_UPS_1_PORT: auto
+      NUT_UPS_1_DESC: "EcoFlow Delta"
+      NUT_USER: admin
+      NUT_MAXAGE: "25"
+    secrets:
+      - nut-password
+    # Optional: mount custom configs (ENV overrides still apply)
+    # volumes:
+    #   - ./configs/ups.conf:/etc/nut/local/ups.conf:ro
+    #   - ./configs/upsd.conf:/etc/nut/local/upsd.conf:ro
+    #   - ./configs/upsd.users:/etc/nut/local/upsd.users:ro
+    #   - ./configs/upsmon.conf:/etc/nut/local/upsmon.conf:ro
+
+secrets:
+  nut-password:
+    file: .secrets/nut-password

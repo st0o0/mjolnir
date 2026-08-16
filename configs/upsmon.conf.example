@@ -1,0 +1,2 @@
+MONITOR ecoflow@localhost 1 admin changeme primary
+RUN_AS_USER nut
