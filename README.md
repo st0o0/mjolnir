@@ -1,34 +1,22 @@
 # mjolnir
 
-Modern NUT (Network UPS Tools) Docker image with Prometheus metrics. Clean alternative to `instantlinux/nut-upsd`.
+NUT (Network UPS Tools) in Docker with built-in Prometheus exporter. Drop-in replacement for `instantlinux/nut-upsd`.
 
-## Features
+Runs a Go entrypoint that handles config generation, process supervision, and metrics export on `:9550`.
 
-- **Go binary entrypoint** — type-safe config parsing, structured error handling
-- **Prometheus metrics** — UPS telemetry on `:9550/metrics` (battery, load, voltage, status)
-- **Health endpoints** — `/healthz`, `/readyz` on `:9550`
-- **Direct config mounting** — mount to `/etc/nut/local/`, no cache, regenerated every restart
-- **ENV + Mount merge** — mounted configs as base, ENV variables override key values
-- **Multi-UPS support** — multiple UPS units in one container via `NUT_UPS_<n>_*` env vars
-- **Graceful shutdown** — proper SIGTERM handling, stops upsmon → upsd → drivers
-- **Multi-arch** — `linux/amd64` + `linux/arm64` (Raspberry Pi)
-- **No privileged mode** — uses `--device` for USB access
-- **Signed releases** — cosign keyless signing, SLSA provenance, SBOM attestations
-
-## Quick Start
+## Setup
 
 ```bash
-# Create password
 mkdir -p .secrets
 echo "your-password" > .secrets/nut-password
-
-# Start
 docker compose up -d
 ```
 
 ## Configuration
 
-### Option 1: Environment Variables (simplest)
+There are three ways to configure NUT — pick whichever fits your setup.
+
+**Environment variables** are the simplest. Define UPS devices with `NUT_UPS_<n>_*`:
 
 ```yaml
 environment:
@@ -40,7 +28,7 @@ environment:
   NUT_MAXAGE: "25"
 ```
 
-### Option 2: Mount Config Files
+**Mounting config files** gives full control. Mount to `/etc/nut/local/`:
 
 ```yaml
 volumes:
@@ -50,13 +38,13 @@ volumes:
   - ./configs/upsmon.conf:/etc/nut/local/upsmon.conf:ro
 ```
 
-See `configs/*.example` for templates.
+Templates are in `configs/*.example`.
 
-### Option 3: Both (merge)
+**Both together** works too — mounted files act as the base, env vars override specific values.
 
-Mount configs and set ENV overrides. Mounted configs are used as base, ENV variables like `NUT_MAXAGE` override specific values.
+### Multiple UPS devices
 
-### Multi-UPS
+Just increment the index:
 
 ```yaml
 environment:
@@ -68,17 +56,17 @@ environment:
   NUT_UPS_2_PORT: 192.168.1.100
 ```
 
-## Environment Variables
+### Environment variable reference
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NUT_UPS_<n>_NAME` | `ups` | UPS name in ups.conf |
+| `NUT_UPS_<n>_NAME` | `ups` | UPS name |
 | `NUT_UPS_<n>_DRIVER` | `usbhid-ups` | NUT driver |
 | `NUT_UPS_<n>_PORT` | `auto` | Device path or network address |
 | `NUT_UPS_<n>_DESC` | `UPS` | Description |
-| `NUT_UPS_<n>_SERIAL` | — | Device serial number |
+| `NUT_UPS_<n>_SERIAL` | — | Serial number |
 | `NUT_UPS_<n>_VENDORID` | — | USB vendor ID |
-| `NUT_UPS_<n>_POLLINTERVAL` | — | Poll interval in seconds |
+| `NUT_UPS_<n>_POLLINTERVAL` | — | Poll interval (seconds) |
 | `NUT_UPS_<n>_SDORDER` | — | Shutdown order |
 | `NUT_UPS_<n>_EXTRA` | — | Extra driver options (`key=val,key=val`) |
 | `NUT_USER` | `admin` | API username |
@@ -86,13 +74,11 @@ environment:
 | `NUT_SECRET_NAME` | `nut-password` | Docker secret name |
 | `NUT_SERVER` | `primary` | `primary` or `secondary` |
 | `NUT_LISTEN` | `0.0.0.0` | Listen address |
-| `NUT_MAXAGE` | `15` | Max driver age in seconds |
+| `NUT_MAXAGE` | `15` | Max driver age (seconds) |
 
-## Monitoring
+## Prometheus metrics
 
-### Prometheus
-
-Metrics are exposed on port `9550`:
+Scrape `:9550/metrics`:
 
 ```yaml
 scrape_configs:
@@ -101,48 +87,47 @@ scrape_configs:
       - targets: ['mjolnir:9550']
 ```
 
-Available metrics:
+Exported metrics:
 
-| Metric | Description |
-|--------|-------------|
+| Metric | Type |
+|--------|------|
 | `mjolnir_ups_status` | 1=online, 0=on-battery, -1=unknown |
 | `mjolnir_ups_battery_charge_percent` | Battery charge % |
-| `mjolnir_ups_load_percent` | UPS load % |
+| `mjolnir_ups_load_percent` | Load % |
 | `mjolnir_ups_input_voltage` | Input voltage |
 | `mjolnir_ups_output_voltage` | Output voltage |
 | `mjolnir_ups_battery_voltage` | Battery voltage |
 
-All metrics are labeled with `ups="<name>"`.
+All metrics carry a `ups="<name>"` label.
 
-### Health Endpoints
+## Health checks
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET :9550/healthz` | Aggregate UPS health — 200 if all UPS units respond, 503 otherwise |
-| `GET :9550/readyz` | Readiness — 200 after all daemons started, 503 during startup |
+| Endpoint | Status |
+|----------|--------|
+| `GET :9550/healthz` | 200 if all UPS units respond, 503 otherwise |
+| `GET :9550/readyz` | 200 after daemons started, 503 during startup |
 | `GET :9550/metrics` | Prometheus metrics |
 
-## USB Device Access
+## USB access
 
-Use `--device` instead of `--privileged`:
+Pass the USB bus instead of running privileged:
 
 ```yaml
 devices:
   - /dev/bus/usb:/dev/bus/usb
 ```
 
-## Querying UPS Status
+## Querying UPS status
 
 ```bash
-# From the host
 docker exec mjolnir upsc ecoflow@localhost
-
-# From another machine on the network
 upsc ecoflow@<host-ip>:3493
 ```
 
-## Available Drivers
+## Listing available drivers
 
 ```bash
 docker run --rm ghcr.io/st0o0/mjolnir --version
 ```
+
+Builds for `linux/amd64` and `linux/arm64`. Releases are signed with cosign and include SLSA provenance.
