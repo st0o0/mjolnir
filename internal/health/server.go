@@ -68,7 +68,7 @@ func (s *Server) handleHealthz(w http.ResponseWriter, r *http.Request) {
 
 	if len(s.upsNames) == 0 {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]string{
+		_ = json.NewEncoder(w).Encode(map[string]string{
 			"status": "unhealthy",
 			"error":  "no UPS units configured",
 		})
@@ -101,7 +101,7 @@ func (s *Server) handleHealthz(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"status": status,
 		"units":  units,
 	})
@@ -112,9 +112,9 @@ func (s *Server) handleReadyz(w http.ResponseWriter, r *http.Request) {
 
 	if s.ready.Load() {
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]bool{"ready": true})
+		_ = json.NewEncoder(w).Encode(map[string]bool{"ready": true})
 	} else {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]bool{"ready": false})
+		_ = json.NewEncoder(w).Encode(map[string]bool{"ready": false})
 	}
 }

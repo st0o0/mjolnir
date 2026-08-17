@@ -79,15 +79,13 @@ func run() int {
 	srv.SetReady()
 	log.Printf("[mjolnir] ready")
 
-	select {
-	case <-ctx.Done():
-	}
+	<-ctx.Done()
 
 	nutClient.Close()
 	mgr.Stop()
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdownCancel()
-	srv.Stop(shutdownCtx)
+	_ = srv.Stop(shutdownCtx)
 
 	return 0
 }

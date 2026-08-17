@@ -309,10 +309,11 @@ func TestListUPSEmpty(t *testing.T) {
 		scanner := bufio.NewScanner(conn)
 		for scanner.Scan() {
 			cmd := scanner.Text()
-			if cmd == "LIST UPS" {
+			switch cmd {
+			case "LIST UPS":
 				fmt.Fprintln(conn, "BEGIN LIST UPS")
 				fmt.Fprintln(conn, "END LIST UPS")
-			} else if cmd == "LOGOUT" {
+			case "LOGOUT":
 				fmt.Fprintln(conn, "OK Goodbye")
 				return
 			}
