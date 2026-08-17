@@ -30,7 +30,6 @@ ENV NUT_UPS_1_NAME=ups \
     NUT_UPS_1_PORT=auto \
     NUT_UPS_1_DESC=UPS \
     NUT_USER=admin \
-    NUT_PASSWORD= \
     NUT_SECRET_NAME=nut-password \
     NUT_SERVER=primary \
     NUT_LISTEN=0.0.0.0 \
