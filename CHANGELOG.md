@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/st0o0/mjolnir/compare/v0.1.0...v0.1.1) (2026-08-17)
+
+
+### Features
+
+* support multiple NUT users via NUT_USER_&lt;n&gt;_* env vars ([2d55d18](https://github.com/st0o0/mjolnir/commit/2d55d187886806ed3e1b1583170a7db686776ea8))
+
 ## [0.1.0](https://github.com/st0o0/mjolnir/compare/v0.1.0...v0.1.0) (2026-08-17)
 
 
