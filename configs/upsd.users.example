@@ -1,3 +1,13 @@
-[admin]
+[monitor]
   password = changeme
   upsmon primary
+
+[admin]
+  password = changeme
+  actions = SET
+  actions = FSD
+  instcmds = ALL
+
+[remote]
+  password = changeme
+  upsmon secondary

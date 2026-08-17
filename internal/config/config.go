@@ -22,25 +22,31 @@ type UPSConfig struct {
 	Extra        map[string]string
 }
 
-type Config struct {
-	UPSUnits   []UPSConfig
-	User       string
+type UserConfig struct {
+	Name       string
 	Password   string
 	SecretName string
-	Server     string
-	Listen     string
-	MaxAge     string
+	Upsmon     string
+	Actions    []string
+	Instcmds   []string
 }
 
-var upsNameRe = regexp.MustCompile(`NUT_UPS_(\d+)_NAME`)
+type Config struct {
+	UPSUnits []UPSConfig
+	Users    []UserConfig
+	Listen   string
+	MaxAge   string
+}
+
+var (
+	upsNameRe  = regexp.MustCompile(`NUT_UPS_(\d+)_NAME`)
+	userNameRe = regexp.MustCompile(`NUT_USER_(\d+)_NAME`)
+)
 
 func Load() (*Config, error) {
 	cfg := &Config{
-		User:       envOr("NUT_USER", "admin"),
-		SecretName: envOr("NUT_SECRET_NAME", "nut-password"),
-		Server:     envOr("NUT_SERVER", "primary"),
-		Listen:     envOr("NUT_LISTEN", "0.0.0.0"),
-		MaxAge:     envOr("NUT_MAXAGE", "15"),
+		Listen: envOr("NUT_LISTEN", "0.0.0.0"),
+		MaxAge: envOr("NUT_MAXAGE", "15"),
 	}
 
 	indices := discoverUPSIndices()
@@ -64,18 +70,92 @@ func Load() (*Config, error) {
 		cfg.UPSUnits = append(cfg.UPSUnits, ups)
 	}
 
-	cfg.Password = resolvePassword(cfg.SecretName)
+	users, err := loadUsers()
+	if err != nil {
+		return nil, err
+	}
+	cfg.Users = users
 
-	log.Printf("[mjolnir] loaded %d UPS unit(s), user=%s, server=%s", len(cfg.UPSUnits), cfg.User, cfg.Server)
+	log.Printf("[mjolnir] loaded %d UPS unit(s), %d user(s)", len(cfg.UPSUnits), len(cfg.Users))
 	return cfg, nil
 }
 
+func loadUsers() ([]UserConfig, error) {
+	userIndices := discoverUserIndices()
+
+	if len(userIndices) > 0 {
+		if hasLegacyUserVars() {
+			log.Printf("[mjolnir] WARNING: NUT_USER_<n>_* vars found, ignoring legacy NUT_USER/NUT_PASSWORD/NUT_SERVER")
+		}
+		return loadIndexedUsers(userIndices)
+	}
+
+	return loadLegacyUser()
+}
+
+func loadIndexedUsers(indices []int) ([]UserConfig, error) {
+	seen := make(map[string]bool)
+	var users []UserConfig
+
+	for _, idx := range indices {
+		prefix := fmt.Sprintf("NUT_USER_%d_", idx)
+		name := os.Getenv(prefix + "NAME")
+
+		if seen[name] {
+			return nil, fmt.Errorf("duplicate user name %q (NUT_USER_%d_NAME)", name, idx)
+		}
+		seen[name] = true
+
+		user := UserConfig{
+			Name:       name,
+			SecretName: os.Getenv(prefix + "SECRET_NAME"),
+			Upsmon:     strings.ToLower(os.Getenv(prefix + "UPSMON")),
+			Actions:    parseCSV(os.Getenv(prefix + "ACTIONS")),
+			Instcmds:   parseCSV(os.Getenv(prefix + "INSTCMDS")),
+		}
+
+		pw, err := resolveUserPassword(idx, &user)
+		if err != nil {
+			return nil, err
+		}
+		user.Password = pw
+
+		if err := validateUser(&user, idx); err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func loadLegacyUser() ([]UserConfig, error) {
+	user := UserConfig{
+		Name:   envOr("NUT_USER", "admin"),
+		Upsmon: envOr("NUT_SERVER", "primary"),
+	}
+
+	secretName := envOr("NUT_SECRET_NAME", "nut-password")
+	user.Password = resolveLegacyPassword(secretName)
+
+	return []UserConfig{user}, nil
+}
+
 func discoverUPSIndices() []int {
+	return discoverIndices(upsNameRe)
+}
+
+func discoverUserIndices() []int {
+	return discoverIndices(userNameRe)
+}
+
+func discoverIndices(re *regexp.Regexp) []int {
 	var indices []int
 	seen := make(map[int]bool)
 	for _, env := range os.Environ() {
 		parts := strings.SplitN(env, "=", 2)
-		matches := upsNameRe.FindStringSubmatch(parts[0])
+		matches := re.FindStringSubmatch(parts[0])
 		if matches == nil {
 			continue
 		}
@@ -90,7 +170,39 @@ func discoverUPSIndices() []int {
 	return indices
 }
 
-func resolvePassword(secretName string) string {
+func hasLegacyUserVars() bool {
+	return os.Getenv("NUT_USER") != "" || os.Getenv("NUT_PASSWORD") != "" || os.Getenv("NUT_SERVER") != ""
+}
+
+func resolveUserPassword(idx int, user *UserConfig) (string, error) {
+	if user.SecretName != "" {
+		data, err := os.ReadFile(fmt.Sprintf("/run/secrets/%s", user.SecretName))
+		if err == nil {
+			if pw := strings.TrimSpace(string(data)); pw != "" {
+				log.Printf("[mjolnir] user %q password loaded from Docker secret %s", user.Name, user.SecretName)
+				return pw, nil
+			}
+		}
+	}
+
+	conventionSecret := fmt.Sprintf("nut-user-%d-password", idx)
+	data, err := os.ReadFile(fmt.Sprintf("/run/secrets/%s", conventionSecret))
+	if err == nil {
+		if pw := strings.TrimSpace(string(data)); pw != "" {
+			log.Printf("[mjolnir] user %q password loaded from Docker secret %s", user.Name, conventionSecret)
+			return pw, nil
+		}
+	}
+
+	envKey := fmt.Sprintf("NUT_USER_%d_PASSWORD", idx)
+	if pw := os.Getenv(envKey); pw != "" {
+		return pw, nil
+	}
+
+	return "", fmt.Errorf("no password for user %q (set NUT_USER_%d_PASSWORD, NUT_USER_%d_SECRET_NAME, or mount Docker secret %s)", user.Name, idx, idx, conventionSecret)
+}
+
+func resolveLegacyPassword(secretName string) string {
 	secretPath := fmt.Sprintf("/run/secrets/%s", secretName)
 	data, err := os.ReadFile(secretPath)
 	if err == nil {
@@ -107,6 +219,36 @@ func resolvePassword(secretName string) string {
 
 	log.Printf("[mjolnir] WARNING: using default password, set NUT_PASSWORD or mount a Docker secret")
 	return "changeme"
+}
+
+func validateUser(user *UserConfig, idx int) error {
+	for i, action := range user.Actions {
+		upper := strings.ToUpper(action)
+		if upper != "SET" && upper != "FSD" {
+			return fmt.Errorf("invalid action %q for user %q (NUT_USER_%d_ACTIONS): must be SET or FSD", action, user.Name, idx)
+		}
+		user.Actions[i] = upper
+	}
+
+	if user.Upsmon != "" && user.Upsmon != "primary" && user.Upsmon != "secondary" {
+		return fmt.Errorf("invalid upsmon role %q for user %q (NUT_USER_%d_UPSMON): must be primary or secondary", user.Upsmon, user.Name, idx)
+	}
+
+	return nil
+}
+
+func parseCSV(s string) []string {
+	if s == "" {
+		return nil
+	}
+	var result []string
+	for _, v := range strings.Split(s, ",") {
+		v = strings.TrimSpace(v)
+		if v != "" {
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func parseExtra(s string) map[string]string {

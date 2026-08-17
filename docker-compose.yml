@@ -14,10 +14,18 @@ services:
       NUT_UPS_1_DRIVER: usbhid-ups
       NUT_UPS_1_PORT: auto
       NUT_UPS_1_DESC: "EcoFlow Delta"
-      NUT_USER: admin
       NUT_MAXAGE: "25"
+      # Single-user mode (legacy, simple):
+      #   NUT_USER: admin
+      # Multi-user mode:
+      NUT_USER_1_NAME: monitor
+      NUT_USER_1_UPSMON: primary
+      NUT_USER_2_NAME: admin
+      NUT_USER_2_ACTIONS: SET,FSD
+      NUT_USER_2_INSTCMDS: ALL
     secrets:
-      - nut-password
+      - nut-user-1-password
+      - nut-user-2-password
     # Optional: mount custom configs (ENV overrides still apply)
     # volumes:
     #   - ./configs/ups.conf:/etc/nut/local/ups.conf:ro
@@ -26,5 +34,7 @@ services:
     #   - ./configs/upsmon.conf:/etc/nut/local/upsmon.conf:ro
 
 secrets:
-  nut-password:
-    file: .secrets/nut-password
+  nut-user-1-password:
+    file: .secrets/nut-user-1-password
+  nut-user-2-password:
+    file: .secrets/nut-user-2-password

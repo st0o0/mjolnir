@@ -24,7 +24,7 @@ environment:
   NUT_UPS_1_DRIVER: usbhid-ups
   NUT_UPS_1_PORT: auto
   NUT_UPS_1_DESC: "EcoFlow Delta"
-  NUT_USER: admin
+  NUT_USER: admin   # single-user mode (legacy)
   NUT_MAXAGE: "25"
 ```
 
@@ -56,7 +56,32 @@ environment:
   NUT_UPS_2_PORT: 192.168.1.100
 ```
 
+### Multiple users
+
+Define users with `NUT_USER_<n>_*` for fine-grained NUT access control:
+
+```yaml
+environment:
+  NUT_USER_1_NAME: monitor
+  NUT_USER_1_UPSMON: primary
+  NUT_USER_2_NAME: admin
+  NUT_USER_2_ACTIONS: SET,FSD
+  NUT_USER_2_INSTCMDS: ALL
+  NUT_USER_3_NAME: remote
+  NUT_USER_3_UPSMON: secondary
+secrets:
+  - nut-user-1-password
+  - nut-user-2-password
+  - nut-user-3-password
+```
+
+When `NUT_USER_<n>_*` vars are set, the legacy `NUT_USER`/`NUT_PASSWORD`/`NUT_SERVER` vars are ignored.
+
+Passwords are resolved per user: Docker secret `NUT_USER_<n>_SECRET_NAME` (or convention `nut-user-<n>-password`) → `NUT_USER_<n>_PASSWORD` env var → error. No default password in multi-user mode.
+
 ### Environment variable reference
+
+**UPS devices** (`<n>` = 1, 2, 3, ...):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -69,10 +94,31 @@ environment:
 | `NUT_UPS_<n>_POLLINTERVAL` | — | Poll interval (seconds) |
 | `NUT_UPS_<n>_SDORDER` | — | Shutdown order |
 | `NUT_UPS_<n>_EXTRA` | — | Extra driver options (`key=val,key=val`) |
+
+**Users** (`<n>` = 1, 2, 3, ...):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NUT_USER_<n>_NAME` | — | Username (required) |
+| `NUT_USER_<n>_PASSWORD` | — | Password (fallback if no Docker secret) |
+| `NUT_USER_<n>_SECRET_NAME` | `nut-user-<n>-password` | Docker secret name |
+| `NUT_USER_<n>_UPSMON` | — | `primary` or `secondary` |
+| `NUT_USER_<n>_ACTIONS` | — | `SET`, `FSD`, or `SET,FSD` |
+| `NUT_USER_<n>_INSTCMDS` | — | `ALL` or comma-separated commands |
+
+**Legacy single-user** (used when no `NUT_USER_<n>_*` vars are set):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `NUT_USER` | `admin` | API username |
 | `NUT_PASSWORD` | — | Password (prefer Docker secret) |
 | `NUT_SECRET_NAME` | `nut-password` | Docker secret name |
 | `NUT_SERVER` | `primary` | `primary` or `secondary` |
+
+**General:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `NUT_LISTEN` | `0.0.0.0` | Listen address |
 | `NUT_MAXAGE` | `15` | Max driver age (seconds) |
 

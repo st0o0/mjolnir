@@ -34,6 +34,13 @@ ENV NUT_UPS_1_NAME=ups \
     NUT_SERVER=primary \
     NUT_LISTEN=0.0.0.0 \
     NUT_MAXAGE=15
+# Multi-user mode (overrides NUT_USER/NUT_PASSWORD/NUT_SERVER when set):
+#   NUT_USER_<n>_NAME         — username (required)
+#   NUT_USER_<n>_PASSWORD     — password (fallback if no Docker secret)
+#   NUT_USER_<n>_SECRET_NAME  — Docker secret name (default: nut-user-<n>-password)
+#   NUT_USER_<n>_UPSMON       — primary or secondary
+#   NUT_USER_<n>_ACTIONS      — SET,FSD (comma-separated)
+#   NUT_USER_<n>_INSTCMDS     — ALL or cmd1,cmd2 (comma-separated)
 
 EXPOSE 3493 9550
 

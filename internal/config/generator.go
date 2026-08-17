@@ -118,17 +118,45 @@ func applyMaxageOverride(content, maxage string) string {
 
 func generateUpsdUsers(cfg *Config, runDir string) error {
 	var b strings.Builder
-	fmt.Fprintf(&b, "[%s]\n", cfg.User)
-	fmt.Fprintf(&b, "  password = %s\n", cfg.Password)
-	fmt.Fprintf(&b, "  upsmon %s\n", cfg.Server)
+	for i, user := range cfg.Users {
+		if i > 0 {
+			b.WriteString("\n")
+		}
+		fmt.Fprintf(&b, "[%s]\n", user.Name)
+		fmt.Fprintf(&b, "  password = %s\n", user.Password)
+
+		for _, action := range user.Actions {
+			fmt.Fprintf(&b, "  actions = %s\n", action)
+		}
+
+		for _, cmd := range user.Instcmds {
+			fmt.Fprintf(&b, "  instcmds = %s\n", cmd)
+		}
+
+		if user.Upsmon != "" {
+			fmt.Fprintf(&b, "  upsmon %s\n", user.Upsmon)
+		}
+	}
 
 	return os.WriteFile(filepath.Join(runDir, "upsd.users"), []byte(b.String()), 0640)
 }
 
 func generateUpsmonConf(cfg *Config, runDir string) error {
+	var primaryUser *UserConfig
+	for i := range cfg.Users {
+		if cfg.Users[i].Upsmon == "primary" {
+			primaryUser = &cfg.Users[i]
+			break
+		}
+	}
+
+	if primaryUser == nil {
+		return fmt.Errorf("no user with upsmon=primary found; upsmon requires a primary monitor user")
+	}
+
 	var b strings.Builder
 	for _, ups := range cfg.UPSUnits {
-		fmt.Fprintf(&b, "MONITOR %s@localhost 1 %s %s %s\n", ups.Name, cfg.User, cfg.Password, cfg.Server)
+		fmt.Fprintf(&b, "MONITOR %s@localhost 1 %s %s primary\n", ups.Name, primaryUser.Name, primaryUser.Password)
 	}
 	b.WriteString("RUN_AS_USER nut\n")
 

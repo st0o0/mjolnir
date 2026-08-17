@@ -12,9 +12,21 @@ The system MUST generate all NUT configuration files from environment variables 
 - **WHEN** `NUT_UPS_1_NAME`, `NUT_UPS_1_DRIVER`, `NUT_UPS_1_PORT` are set and no files exist under `/etc/nut/local/`
 - **THEN** `ups.conf`, `upsd.conf`, `upsd.users`, `upsmon.conf`, and `nut.conf` are generated in `/run/nut/` with values from ENV
 
+#### Scenario: Single UPS with multiple users via ENV only
+- **WHEN** `NUT_UPS_1_NAME`, `NUT_USER_1_NAME`, `NUT_USER_2_NAME` are set and no files exist under `/etc/nut/local/`
+- **THEN** `ups.conf`, `upsd.conf`, `upsd.users`, `upsmon.conf`, and `nut.conf` are generated in `/run/nut/` with values from ENV
+
+#### Scenario: upsd.users generation with multiple users
+- **WHEN** `NUT_USER_1_NAME=monitor`, `NUT_USER_1_UPSMON=primary` and `NUT_USER_2_NAME=admin`, `NUT_USER_2_ACTIONS=SET,FSD`, `NUT_USER_2_INSTCMDS=ALL` are set
+- **THEN** `/run/nut/upsd.users` contains two sections with all directives
+
+#### Scenario: upsmon.conf uses primary user
+- **WHEN** `NUT_USER_1_NAME=monitor`, `NUT_USER_1_UPSMON=primary` and `NUT_USER_2_NAME=admin` (no upsmon role) are set
+- **THEN** MONITOR lines in `/run/nut/upsmon.conf` use `monitor` with their password and `primary` role
+
 #### Scenario: ENV defaults
-- **WHEN** only `NUT_UPS_1_NAME` is set (no other UPS ENV vars)
-- **THEN** defaults apply: `driver=usbhid-ups`, `port=auto`, `desc=UPS`
+- **WHEN** only `NUT_UPS_1_NAME` is set (no user ENV vars)
+- **THEN** defaults apply: single user `admin` with default password resolution and `upsmon primary`
 
 #### Scenario: nut.conf is always generated
 - **WHEN** the container starts (any mode)
@@ -58,11 +70,11 @@ Selected ENV variables SHALL override specific values in mounted config files (m
 
 #### Scenario: No merge for upsd.users
 - **WHEN** `/etc/nut/local/upsd.users` is mounted
-- **THEN** `NUT_USER` and `NUT_PASSWORD` ENV vars are ignored for that file
+- **THEN** all `NUT_USER_<n>_*` ENV vars are ignored for that file -- mounted file is copied as-is
 
 #### Scenario: No merge for upsmon.conf
 - **WHEN** `/etc/nut/local/upsmon.conf` is mounted
-- **THEN** ENV-based MONITOR lines are ignored — mounted file is used as-is
+- **THEN** ENV-based MONITOR lines are ignored -- mounted file is used as-is
 
 ---
 
