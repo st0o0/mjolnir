@@ -8,7 +8,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" -o /mjolnir ./cmd/mjolnir
 
-FROM alpine:3.22 AS runtime
+FROM alpine:3.24 AS runtime
 LABEL org.opencontainers.image.title="mjolnir" \
       org.opencontainers.image.description="Modern NUT UPS monitoring container with Prometheus metrics" \
       org.opencontainers.image.source="https://github.com/st0o0/mjolnir" \
