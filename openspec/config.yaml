@@ -3,8 +3,8 @@ schema: spec-driven
 context: |
   Project: mjolnir — Modern NUT (Network UPS Tools) Docker image
   Replaces: instantlinux/nut-upsd
-  Tech stack: Alpine Linux, Shell (POSIX sh), Docker, GitHub Actions
+  Tech stack: Go, Alpine Linux, Docker, GitHub Actions, Prometheus client_golang
   Target hardware: EcoFlow Delta on Raspberry Pi (ARM64) + AMD64 servers
   Domain: UPS monitoring via NUT protocol (port 3493)
-  Architecture: Single container running NUT daemons (upsdrvctl, upsd, upsmon)
+  Architecture: Go binary managing NUT daemons (upsdrvctl, upsd, upsmon) with Prometheus metrics, health/readiness endpoints on port 9550
   Config strategy: ENV vars generate configs, mounted files override, working copy in /run/nut/
