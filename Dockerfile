@@ -1,8 +1,19 @@
-FROM alpine:3.22
+# syntax=docker/dockerfile:1
 
+FROM golang:1.26-alpine AS build
+ARG VERSION=dev
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" -o /mjolnir ./cmd/mjolnir
+
+FROM alpine:3.22 AS runtime
 LABEL org.opencontainers.image.title="mjolnir" \
-      org.opencontainers.image.description="Modern NUT UPS monitoring container" \
-      org.opencontainers.image.source="https://github.com/st0o0/mjolnir"
+      org.opencontainers.image.description="Modern NUT UPS monitoring container with Prometheus metrics" \
+      org.opencontainers.image.source="https://github.com/st0o0/mjolnir" \
+      org.opencontainers.image.documentation="https://github.com/st0o0/mjolnir#readme" \
+      org.opencontainers.image.licenses="MIT"
 
 RUN apk add --no-cache \
       nut \
@@ -12,8 +23,7 @@ RUN apk add --no-cache \
     && mkdir -p /run/nut /etc/nut/local \
     && chown -R nut:nut /run/nut
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY --from=build /mjolnir /usr/local/bin/mjolnir
 
 ENV NUT_UPS_1_NAME=ups \
     NUT_UPS_1_DRIVER=usbhid-ups \
@@ -26,9 +36,9 @@ ENV NUT_UPS_1_NAME=ups \
     NUT_LISTEN=0.0.0.0 \
     NUT_MAXAGE=15
 
-EXPOSE 3493
+EXPOSE 3493 9550
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD upsc ${NUT_UPS_1_NAME}@localhost:3493 ups.status 2>/dev/null || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
+  CMD ["/usr/local/bin/mjolnir", "healthcheck"]
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/mjolnir"]

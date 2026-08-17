@@ -5,3 +5,10 @@
 configs/
 docker-compose.yml
 LICENSE
+openspec/
+tests/
+.golangci.yml
+.hadolint.yaml
+.release-please-manifest.json
+release-please-config.json
+commitlint.config.mjs

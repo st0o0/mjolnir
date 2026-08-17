@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     ports:
       - "3493:3493"
+      - "9550:9550"
     devices:
       - /dev/bus/usb:/dev/bus/usb
     environment:
