@@ -9,16 +9,18 @@ import (
 )
 
 type Collector struct {
+	querier  nut.Querier
+	writer   *MetricWriter
 	upsNames []string
 	interval time.Duration
-	stop     chan struct{}
 }
 
-func NewCollector(upsNames []string, interval time.Duration) *Collector {
+func NewCollector(querier nut.Querier, writer *MetricWriter, upsNames []string, interval time.Duration) *Collector {
 	return &Collector{
+		querier:  querier,
+		writer:   writer,
 		upsNames: upsNames,
 		interval: interval,
-		stop:     make(chan struct{}),
 	}
 }
 
@@ -32,12 +34,13 @@ func (c *Collector) Run(ctx context.Context) {
 			return
 		case <-ticker.C:
 			for _, name := range c.upsNames {
-				vars, err := nut.Query(name)
+				vars, err := c.querier.ListVars(name)
 				if err != nil {
 					log.Printf("[mjolnir] failed to query UPS %s: %v", name, err)
+					c.writer.SetError(name)
 					continue
 				}
-				UpdateMetrics(name, vars)
+				c.writer.Write(name, vars)
 			}
 		}
 	}

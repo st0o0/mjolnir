@@ -14,12 +14,14 @@ import (
 
 type Server struct {
 	httpServer *http.Server
+	querier    nut.Querier
 	upsNames   []string
 	ready      atomic.Bool
 }
 
-func NewServer(addr string, upsNames []string) *Server {
+func NewServer(addr string, querier nut.Querier, upsNames []string) *Server {
 	s := &Server{
+		querier:  querier,
 		upsNames: upsNames,
 	}
 
@@ -82,7 +84,7 @@ func (s *Server) handleHealthz(w http.ResponseWriter, r *http.Request) {
 	healthy := true
 
 	for _, name := range s.upsNames {
-		vars, err := nut.Query(name)
+		vars, err := s.querier.ListVars(name)
 		if err != nil {
 			units[name] = unitStatus{Error: err.Error()}
 			healthy = false
