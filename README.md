@@ -1,16 +1,19 @@
 # mjolnir
 
-Modern NUT (Network UPS Tools) Docker image. Clean alternative to `instantlinux/nut-upsd`.
+Modern NUT (Network UPS Tools) Docker image with Prometheus metrics. Clean alternative to `instantlinux/nut-upsd`.
 
 ## Features
 
+- **Go binary entrypoint** — type-safe config parsing, structured error handling
+- **Prometheus metrics** — UPS telemetry on `:9550/metrics` (battery, load, voltage, status)
+- **Health endpoints** — `/healthz`, `/readyz` on `:9550`
 - **Direct config mounting** — mount to `/etc/nut/local/`, no cache, regenerated every restart
 - **ENV + Mount merge** — mounted configs as base, ENV variables override key values
 - **Multi-UPS support** — multiple UPS units in one container via `NUT_UPS_<n>_*` env vars
-- **Graceful shutdown** — proper SIGTERM handling via tini, stops upsmon → upsd → drivers
+- **Graceful shutdown** — proper SIGTERM handling, stops upsmon → upsd → drivers
 - **Multi-arch** — `linux/amd64` + `linux/arm64` (Raspberry Pi)
 - **No privileged mode** — uses `--device` for USB access
-- **Current NUT version** — latest from Alpine repos, not pinned to ancient patches
+- **Signed releases** — cosign keyless signing, SLSA provenance, SBOM attestations
 
 ## Quick Start
 
@@ -85,6 +88,40 @@ environment:
 | `NUT_LISTEN` | `0.0.0.0` | Listen address |
 | `NUT_MAXAGE` | `15` | Max driver age in seconds |
 
+## Monitoring
+
+### Prometheus
+
+Metrics are exposed on port `9550`:
+
+```yaml
+scrape_configs:
+  - job_name: mjolnir
+    static_configs:
+      - targets: ['mjolnir:9550']
+```
+
+Available metrics:
+
+| Metric | Description |
+|--------|-------------|
+| `mjolnir_ups_status` | 1=online, 0=on-battery, -1=unknown |
+| `mjolnir_ups_battery_charge_percent` | Battery charge % |
+| `mjolnir_ups_load_percent` | UPS load % |
+| `mjolnir_ups_input_voltage` | Input voltage |
+| `mjolnir_ups_output_voltage` | Output voltage |
+| `mjolnir_ups_battery_voltage` | Battery voltage |
+
+All metrics are labeled with `ups="<name>"`.
+
+### Health Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET :9550/healthz` | Aggregate UPS health — 200 if all UPS units respond, 503 otherwise |
+| `GET :9550/readyz` | Readiness — 200 after all daemons started, 503 during startup |
+| `GET :9550/metrics` | Prometheus metrics |
+
 ## USB Device Access
 
 Use `--device` instead of `--privileged`:
@@ -107,5 +144,5 @@ upsc ecoflow@<host-ip>:3493
 ## Available Drivers
 
 ```bash
-docker run --rm --entrypoint ls ghcr.io/st0o0/mjolnir /usr/lib/nut/
+docker run --rm ghcr.io/st0o0/mjolnir --version
 ```
