@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/st0o0/mjolnir/compare/v0.1.2...v0.1.3) (2026-08-18)
+
+
+### Bug Fixes
+
+* chown /run/nut/ to nut:nut after config generation ([14afb03](https://github.com/st0o0/mjolnir/commit/14afb032b32425fc5d556598131f04793f846764))
+* use 0644 permissions for generated NUT config files ([32db7d5](https://github.com/st0o0/mjolnir/commit/32db7d563a134e89fe80a60d95342423416b1d6c))
+
 ## [0.1.2](https://github.com/st0o0/mjolnir/compare/v0.1.1...v0.1.2) (2026-08-18)
 
 
