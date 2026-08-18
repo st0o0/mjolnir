@@ -49,6 +49,11 @@ func run() int {
 		return 1
 	}
 
+	if err := config.FixOwnership(runDir); err != nil {
+		log.Printf("[mjolnir] ownership error: %v", err)
+		return 1
+	}
+
 	upsNames := make([]string, len(cfg.UPSUnits))
 	for i, u := range cfg.UPSUnits {
 		upsNames[i] = u.Name
