@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/st0o0/mjolnir/compare/v0.1.1...v0.1.2) (2026-08-18)
+
+
+### Features
+
+* export non-numeric NUT variables as Prometheus metrics and add /diagnostics endpoint ([2370cfb](https://github.com/st0o0/mjolnir/commit/2370cfb697bd45a5c30965d6b914811e5d694773))
+
 ## [0.1.1](https://github.com/st0o0/mjolnir/compare/v0.1.0...v0.1.1) (2026-08-17)
 
 
