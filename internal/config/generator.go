@@ -35,7 +35,7 @@ func Generate(cfg *Config, runDir, localDir string) error {
 }
 
 func generateNutConf(runDir string) error {
-	return os.WriteFile(filepath.Join(runDir, "nut.conf"), []byte("MODE=netserver\n"), 0640)
+	return os.WriteFile(filepath.Join(runDir, "nut.conf"), []byte("MODE=netserver\n"), 0644)
 }
 
 func generateUpsConf(cfg *Config, runDir string) error {
@@ -71,7 +71,7 @@ func generateUpsConf(cfg *Config, runDir string) error {
 		}
 	}
 
-	return os.WriteFile(filepath.Join(runDir, "ups.conf"), []byte(b.String()), 0640)
+	return os.WriteFile(filepath.Join(runDir, "ups.conf"), []byte(b.String()), 0644)
 }
 
 func generateUpsdConf(cfg *Config, runDir, localDir string) error {
@@ -93,11 +93,11 @@ func generateUpsdConf(cfg *Config, runDir, localDir string) error {
 			content = strings.TrimRight(content, "\n") + fmt.Sprintf("\nLISTEN %s 3493\n", cfg.Listen)
 		}
 
-		return os.WriteFile(dst, []byte(content), 0640)
+		return os.WriteFile(dst, []byte(content), 0644)
 	}
 
 	content := fmt.Sprintf("LISTEN %s 3493\nMAXAGE %s\n", cfg.Listen, cfg.MaxAge)
-	return os.WriteFile(dst, []byte(content), 0640)
+	return os.WriteFile(dst, []byte(content), 0644)
 }
 
 func applyMaxageOverride(content, maxage string) string {
@@ -138,7 +138,7 @@ func generateUpsdUsers(cfg *Config, runDir string) error {
 		}
 	}
 
-	return os.WriteFile(filepath.Join(runDir, "upsd.users"), []byte(b.String()), 0640)
+	return os.WriteFile(filepath.Join(runDir, "upsd.users"), []byte(b.String()), 0644)
 }
 
 func generateUpsmonConf(cfg *Config, runDir string) error {
@@ -160,7 +160,7 @@ func generateUpsmonConf(cfg *Config, runDir string) error {
 	}
 	b.WriteString("RUN_AS_USER nut\n")
 
-	return os.WriteFile(filepath.Join(runDir, "upsmon.conf"), []byte(b.String()), 0640)
+	return os.WriteFile(filepath.Join(runDir, "upsmon.conf"), []byte(b.String()), 0644)
 }
 
 func generateOrCopy(name, localDir, runDir string, generate func() error) error {
@@ -189,5 +189,5 @@ func copyFile(src, dst string) error {
 	if _, err := io.Copy(out, in); err != nil {
 		return err
 	}
-	return out.Chmod(0640)
+	return out.Chmod(0644)
 }
