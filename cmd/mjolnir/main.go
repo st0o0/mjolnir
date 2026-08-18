@@ -62,7 +62,8 @@ func run() int {
 
 	nutClient := nut.Dial("localhost:3493")
 
-	srv := health.NewServer(":9550", nutClient, upsNames)
+	diagnostics := health.NewDiagnosticsStore()
+	srv := health.NewServer(":9550", nutClient, upsNames, diagnostics)
 	if err := srv.Start(); err != nil {
 		log.Printf("[mjolnir] health server error: %v", err)
 		mgr.Stop()
@@ -73,7 +74,7 @@ func run() int {
 	defer cancel()
 
 	writer := health.NewMetricWriter(prometheus.DefaultRegisterer)
-	collector := health.NewCollector(nutClient, writer, upsNames, 15*time.Second)
+	collector := health.NewCollector(nutClient, writer, diagnostics, upsNames, 15*time.Second)
 	go collector.Run(ctx)
 
 	srv.SetReady()

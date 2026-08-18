@@ -9,18 +9,20 @@ import (
 )
 
 type Collector struct {
-	querier  nut.Querier
-	writer   *MetricWriter
-	upsNames []string
-	interval time.Duration
+	querier     nut.Querier
+	writer      *MetricWriter
+	diagnostics *DiagnosticsStore
+	upsNames    []string
+	interval    time.Duration
 }
 
-func NewCollector(querier nut.Querier, writer *MetricWriter, upsNames []string, interval time.Duration) *Collector {
+func NewCollector(querier nut.Querier, writer *MetricWriter, diagnostics *DiagnosticsStore, upsNames []string, interval time.Duration) *Collector {
 	return &Collector{
-		querier:  querier,
-		writer:   writer,
-		upsNames: upsNames,
-		interval: interval,
+		querier:     querier,
+		writer:      writer,
+		diagnostics: diagnostics,
+		upsNames:    upsNames,
+		interval:    interval,
 	}
 }
 
@@ -41,6 +43,7 @@ func (c *Collector) Run(ctx context.Context) {
 					continue
 				}
 				c.writer.Write(name, vars)
+					c.diagnostics.Update(name, vars)
 			}
 		}
 	}

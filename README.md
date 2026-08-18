@@ -137,14 +137,28 @@ Exported metrics:
 
 | Metric | Type |
 |--------|------|
-| `mjolnir_ups_status` | 1=online, 0=on-battery, -1=unknown |
-| `mjolnir_ups_battery_charge_percent` | Battery charge % |
-| `mjolnir_ups_load_percent` | Load % |
-| `mjolnir_ups_input_voltage` | Input voltage |
-| `mjolnir_ups_output_voltage` | Output voltage |
-| `mjolnir_ups_battery_voltage` | Battery voltage |
+| `mjolnir_ups_status{flag}` | UPS status flags: 1=active, 0=inactive |
+| `mjolnir_device_info{model,mfr,serial,type}` | Device info (value=1) |
+| `mjolnir_scrape_error` | 1 if last scrape failed |
+| `mjolnir_<variable>` | Dynamic gauges for all numeric NUT variables |
+| `mjolnir_ups_test_result{result}` | Self-test result enum (OK, Failed, ...) |
+| `mjolnir_battery_charger_status{status}` | Charger status enum |
+| `mjolnir_ups_beeper_status{status}` | Beeper status enum |
+| `mjolnir_input_sensitivity{sensitivity}` | Input sensitivity enum |
+| `mjolnir_input_transfer_reason{reason}` | Transfer reason enum |
+| `mjolnir_input_voltage_status{status}` | Input voltage status enum |
+| `mjolnir_input_current_status{status}` | Input current status enum |
+| `mjolnir_input_frequency_status{status}` | Input frequency status enum |
+| `mjolnir_ups_test_date_seconds` | Last self-test date (Unix timestamp) |
+| `mjolnir_battery_date_seconds` | Battery install date (Unix timestamp) |
+| `mjolnir_battery_mfr_date_seconds` | Battery manufacture date (Unix timestamp) |
+| `mjolnir_ups_firmware_info{version,aux}` | Firmware info (value=1) |
+| `mjolnir_battery_type_info{type}` | Battery type info (value=1) |
+| `mjolnir_ups_type_info{type}` | UPS type info (value=1) |
+| `mjolnir_ups_alarm_active` | 1 if alarm active, 0 otherwise |
+| `mjolnir_ups_alarm_info{alarm}` | Alarm text as label (value=1) |
 
-All metrics carry a `ups="<name>"` label.
+All metrics carry a `ups="<name>"` label. Enum gauges emit all known values on each scrape (active=1, inactive=0).
 
 ## Health checks
 
@@ -153,6 +167,7 @@ All metrics carry a `ups="<name>"` label.
 | `GET :9550/healthz` | 200 if all UPS units respond, 503 otherwise |
 | `GET :9550/readyz` | 200 after daemons started, 503 during startup |
 | `GET :9550/metrics` | Prometheus metrics |
+| `GET :9550/diagnostics` | JSON dump of all NUT variables with handling status |
 
 ## USB access
 

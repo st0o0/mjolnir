@@ -13,21 +13,24 @@ import (
 )
 
 type Server struct {
-	httpServer *http.Server
-	querier    nut.Querier
-	upsNames   []string
-	ready      atomic.Bool
+	httpServer  *http.Server
+	querier     nut.Querier
+	upsNames    []string
+	diagnostics *DiagnosticsStore
+	ready       atomic.Bool
 }
 
-func NewServer(addr string, querier nut.Querier, upsNames []string) *Server {
+func NewServer(addr string, querier nut.Querier, upsNames []string, diagnostics *DiagnosticsStore) *Server {
 	s := &Server{
-		querier:  querier,
-		upsNames: upsNames,
+		querier:     querier,
+		upsNames:    upsNames,
+		diagnostics: diagnostics,
 	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", s.handleHealthz)
 	mux.HandleFunc("/readyz", s.handleReadyz)
+	mux.HandleFunc("/diagnostics", s.handleDiagnostics)
 	mux.Handle("/metrics", promhttp.Handler())
 
 	s.httpServer = &http.Server{
@@ -117,4 +120,10 @@ func (s *Server) handleReadyz(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		_ = json.NewEncoder(w).Encode(map[string]bool{"ready": false})
 	}
+}
+
+func (s *Server) handleDiagnostics(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(s.diagnostics.Snapshot())
 }
