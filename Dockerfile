@@ -15,7 +15,8 @@ LABEL org.opencontainers.image.title="mjolnir" \
       org.opencontainers.image.documentation="https://github.com/st0o0/mjolnir#readme" \
       org.opencontainers.image.licenses="MIT"
 
-RUN apk add --no-cache \
+RUN apk upgrade --no-cache \
+    && apk add --no-cache \
       nut \
       tini \
       libusb \
