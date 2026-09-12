@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.1.4](https://github.com/st0o0/mjolnir/compare/v0.1.3...v0.1.4) (2026-09-12)
+
+
+### Features
+
+* decouple release-please from build workflow ([0538ba8](https://github.com/st0o0/mjolnir/commit/0538ba8ccf87f1569edc2143b120a0e0263b539c))
+
+
+### Bug Fixes
+
+* add apk upgrade to resolve OpenSSL CVEs in runtime image ([639ba85](https://github.com/st0o0/mjolnir/commit/639ba85a60ad51f35d83491a8d5793f604a7f3e9))
+
+
+### Refactoring
+
+* migrate to shared reusable workflows ([3b53083](https://github.com/st0o0/mjolnir/commit/3b53083150aacd2ca7832fab3089a559c256294b))
+* rename CI jobs for cleaner GitHub check names ([9196adb](https://github.com/st0o0/mjolnir/commit/9196adb21c5ee28ea955cc51d94152cbb84b92b7))
+
+
+### Dependencies
+
+* bump golang from 1.26-alpine to 1.27-alpine ([4b32502](https://github.com/st0o0/mjolnir/commit/4b3250293e4eb312d4e85056575e3ebf944be139))
+* bump hadolint/hadolint-action in the actions-all group ([fd48648](https://github.com/st0o0/mjolnir/commit/fd486487374a691a172bc651b76d05faf0513977))
+
 ## [0.1.3](https://github.com/st0o0/mjolnir/compare/v0.1.2...v0.1.3) (2026-08-18)
 
 
