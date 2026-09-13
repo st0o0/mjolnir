@@ -1,5 +1,16 @@
 # syntax=docker/dockerfile:1
 
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS build
+ARG TARGETARCH
+ARG VERSION=dev
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build \
+    -ldflags="-s -w -X main.version=${VERSION}" \
+    -o /mjolnir ./cmd/mjolnir
+
 FROM alpine:3.24
 LABEL org.opencontainers.image.title="mjolnir" \
       org.opencontainers.image.description="Modern NUT UPS monitoring container with Prometheus metrics" \
@@ -16,7 +27,8 @@ RUN apk upgrade --no-cache \
     && mkdir -p /run/nut /etc/nut/local \
     && chown -R nut:nut /run/nut
 
-COPY mjolnir /usr/local/bin/mjolnir
+COPY --from=build /mjolnir /usr/local/bin/mjolnir
+COPY LICENSE NOTICE /
 
 ENV NUT_UPS_1_NAME=ups \
     NUT_UPS_1_DRIVER=usbhid-ups \
@@ -27,13 +39,6 @@ ENV NUT_UPS_1_NAME=ups \
     NUT_SERVER=primary \
     NUT_LISTEN=0.0.0.0 \
     NUT_MAXAGE=15
-# Multi-user mode (overrides NUT_USER/NUT_PASSWORD/NUT_SERVER when set):
-#   NUT_USER_<n>_NAME         — username (required)
-#   NUT_USER_<n>_PASSWORD     — password (fallback if no Docker secret)
-#   NUT_USER_<n>_SECRET_NAME  — Docker secret name (default: nut-user-<n>-password)
-#   NUT_USER_<n>_UPSMON       — primary or secondary
-#   NUT_USER_<n>_ACTIONS      — SET,FSD (comma-separated)
-#   NUT_USER_<n>_INSTCMDS     — ALL or cmd1,cmd2 (comma-separated)
 
 EXPOSE 3493 9550
 
