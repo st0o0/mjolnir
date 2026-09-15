@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.5](https://github.com/st0o0/mjolnir/compare/v0.1.4...v0.1.5) (2026-09-15)
+
+
+### Features
+
+* migrate to modular build and docker workflows ([a5d2241](https://github.com/st0o0/mjolnir/commit/a5d22416c178a184ba260dcda18d892632ebf128))
+* migrate to multi-stage Dockerfile ([3956fbc](https://github.com/st0o0/mjolnir/commit/3956fbc05f5e6f5e452ffaa6d2ea2d3c0d1d73c0))
+
+
+### Bug Fixes
+
+* add id-token permission for cosign signing in dev builds ([11dafdf](https://github.com/st0o0/mjolnir/commit/11dafdfc1e28b15d303b33c2cd173234216d8cdc))
+
 ## [0.1.4](https://github.com/st0o0/mjolnir/compare/v0.1.3...v0.1.4) (2026-09-12)
 
 
