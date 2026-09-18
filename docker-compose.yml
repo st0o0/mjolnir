@@ -1,6 +1,6 @@
 services:
   mjolnir:
-    image: ghcr.io/st0o0/mjolnir:latest
+    image: ghcr.io/st0o0/mjolnir:latest@sha256:f1eaf559269bd1619b7f0862cd78ab3a13e5c933e5777dfedcc54af84f3905ea
     # build: .
     container_name: mjolnir
     restart: unless-stopped
