@@ -33,6 +33,7 @@ jobs:
       image-name: ghcr.io/st0o0/mjolnir
       image-description: "Dev build of mjolnir"
     permissions:
+      contents: read
       packages: write
       pull-requests: write
       id-token: write
