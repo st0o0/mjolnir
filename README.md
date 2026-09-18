@@ -1,5 +1,10 @@
 # mjolnir
 
+[![CI](https://img.shields.io/github/actions/workflow/status/st0o0/mjolnir/ci.yml?style=flat-square&label=CI)](https://github.com/st0o0/mjolnir/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/st0o0/mjolnir?sort=semver&style=flat-square)](https://github.com/st0o0/mjolnir/releases)
+[![GHCR](https://img.shields.io/badge/ghcr.io-st0o0%2Fmjolnir-2496ED?style=flat-square&logo=docker&logoColor=white)](https://github.com/st0o0/mjolnir/pkgs/container/mjolnir)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+
 NUT (Network UPS Tools) in Docker with built-in Prometheus exporter. Drop-in replacement for `instantlinux/nut-upsd`.
 
 Runs a Go entrypoint that handles config generation, process supervision, and metrics export on `:9550`.
