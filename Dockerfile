@@ -28,7 +28,7 @@ RUN apk upgrade --no-cache \
     && chown -R nut:nut /run/nut
 
 COPY --from=build /mjolnir /usr/local/bin/mjolnir
-COPY LICENSE NOTICE /
+COPY LICENSE /
 
 ENV NUT_UPS_1_NAME=ups \
     NUT_UPS_1_DRIVER=usbhid-ups \
