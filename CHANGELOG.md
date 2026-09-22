@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.5](https://github.com/st0o0/mjolnir/compare/v0.1.4...v0.1.5) (2026-09-22)
+
+
+### Features
+
+* extend docker preset for base image digest pinning + automerge ([41c9842](https://github.com/st0o0/mjolnir/commit/41c9842059a865c7c5e9fa6388144bee366c4363))
+* migrate to modular build and docker workflows ([a5d2241](https://github.com/st0o0/mjolnir/commit/a5d22416c178a184ba260dcda18d892632ebf128))
+* migrate to multi-stage Dockerfile ([3956fbc](https://github.com/st0o0/mjolnir/commit/3956fbc05f5e6f5e452ffaa6d2ea2d3c0d1d73c0))
+
+
+### Bug Fixes
+
+* add id-token permission for cosign signing in dev builds ([11dafdf](https://github.com/st0o0/mjolnir/commit/11dafdfc1e28b15d303b33c2cd173234216d8cdc))
+* grant contents:read and drop paths filter in dev-build docker job ([3654a3b](https://github.com/st0o0/mjolnir/commit/3654a3ba082fd953cc2f7dc73f920f7ddeb66b5a))
+
+
+### Documentation
+
+* add README badges ([7731177](https://github.com/st0o0/mjolnir/commit/773117769ce46f00ed97b49f6b81eb9dd8883167))
+
 ## [0.1.4](https://github.com/st0o0/mjolnir/compare/v0.1.3...v0.1.4) (2026-09-12)
 
 
