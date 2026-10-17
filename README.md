@@ -19,7 +19,7 @@ docker compose up -d
 
 ## Configuration
 
-There are three ways to configure NUT — pick whichever fits your setup.
+There are three ways to configure NUT; pick whichever fits your setup.
 
 **Environment variables** are the simplest. Define UPS devices with `NUT_UPS_<n>_*`:
 
@@ -45,7 +45,7 @@ volumes:
 
 Templates are in `configs/*.example`.
 
-**Both together** works too — mounted files act as the base, env vars override specific values.
+Both together works too: mounted files act as the base, env vars override specific values.
 
 ### Multiple UPS devices
 
@@ -94,29 +94,29 @@ Passwords are resolved per user: Docker secret `NUT_USER_<n>_SECRET_NAME` (or co
 | `NUT_UPS_<n>_DRIVER` | `usbhid-ups` | NUT driver |
 | `NUT_UPS_<n>_PORT` | `auto` | Device path or network address |
 | `NUT_UPS_<n>_DESC` | `UPS` | Description |
-| `NUT_UPS_<n>_SERIAL` | — | Serial number |
-| `NUT_UPS_<n>_VENDORID` | — | USB vendor ID |
-| `NUT_UPS_<n>_POLLINTERVAL` | — | Poll interval (seconds) |
-| `NUT_UPS_<n>_SDORDER` | — | Shutdown order |
-| `NUT_UPS_<n>_EXTRA` | — | Extra driver options (`key=val,key=val`) |
+| `NUT_UPS_<n>_SERIAL` | - | Serial number |
+| `NUT_UPS_<n>_VENDORID` | - | USB vendor ID |
+| `NUT_UPS_<n>_POLLINTERVAL` | - | Poll interval (seconds) |
+| `NUT_UPS_<n>_SDORDER` | - | Shutdown order |
+| `NUT_UPS_<n>_EXTRA` | - | Extra driver options (`key=val,key=val`) |
 
 **Users** (`<n>` = 1, 2, 3, ...):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NUT_USER_<n>_NAME` | — | Username (required) |
-| `NUT_USER_<n>_PASSWORD` | — | Password (fallback if no Docker secret) |
+| `NUT_USER_<n>_NAME` | - | Username (required) |
+| `NUT_USER_<n>_PASSWORD` | - | Password (fallback if no Docker secret) |
 | `NUT_USER_<n>_SECRET_NAME` | `nut-user-<n>-password` | Docker secret name |
-| `NUT_USER_<n>_UPSMON` | — | `primary` or `secondary` |
-| `NUT_USER_<n>_ACTIONS` | — | `SET`, `FSD`, or `SET,FSD` |
-| `NUT_USER_<n>_INSTCMDS` | — | `ALL` or comma-separated commands |
+| `NUT_USER_<n>_UPSMON` | - | `primary` or `secondary` |
+| `NUT_USER_<n>_ACTIONS` | - | `SET`, `FSD`, or `SET,FSD` |
+| `NUT_USER_<n>_INSTCMDS` | - | `ALL` or comma-separated commands |
 
 **Legacy single-user** (used when no `NUT_USER_<n>_*` vars are set):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `NUT_USER` | `admin` | API username |
-| `NUT_PASSWORD` | — | Password (prefer Docker secret) |
+| `NUT_PASSWORD` | - | Password (prefer Docker secret) |
 | `NUT_SECRET_NAME` | `nut-password` | Docker secret name |
 | `NUT_SERVER` | `primary` | `primary` or `secondary` |
 
