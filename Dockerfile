@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build \
     -ldflags="-s -w -X main.version=${VERSION}" \
     -o /mjolnir ./cmd/mjolnir
 
-FROM alpine:3.24@sha256:c6b073f8e9e58d881f6ffba6ebf3b9ebd60b9e7d6e8337018c0e68bb5c356873
+FROM alpine:3.24@sha256:71e9b7bae160ba167fa17414401b94cbcdaf3c32feeab9298bd794a2a0614c35
 LABEL org.opencontainers.image.title="mjolnir" \
       org.opencontainers.image.description="Modern NUT UPS monitoring container with Prometheus metrics" \
       org.opencontainers.image.source="https://github.com/st0o0/mjolnir" \
