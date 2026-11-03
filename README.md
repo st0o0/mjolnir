@@ -5,9 +5,40 @@
 [![GHCR](https://img.shields.io/badge/ghcr.io-st0o0%2Fmjolnir-2496ED?style=flat-square&logo=docker&logoColor=white)](https://github.com/st0o0/mjolnir/pkgs/container/mjolnir)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-NUT (Network UPS Tools) in Docker with built-in Prometheus exporter. Drop-in replacement for `instantlinux/nut-upsd`.
+NUT (Network UPS Tools) in Docker with a built-in Prometheus exporter. Drop-in replacement for `instantlinux/nut-upsd`. A Go entrypoint handles config generation from environment variables, NUT daemon supervision, and metrics export on `:9550`.
 
-Runs a Go entrypoint that handles config generation, process supervision, and metrics export on `:9550`.
+```yaml
+services:
+  mjolnir:
+    image: ghcr.io/st0o0/mjolnir:latest
+    restart: unless-stopped
+    environment:
+      NUT_UPS_1_NAME: ecoflow
+      NUT_UPS_1_DRIVER: usbhid-ups
+      NUT_UPS_1_PORT: auto
+      NUT_UPS_1_DESC: "EcoFlow Delta"
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    ports:
+      - "3493:3493"
+      - "127.0.0.1:9550:9550"
+    secrets:
+      - nut-user-1-password
+
+secrets:
+  nut-user-1-password:
+    file: .secrets/nut-password
+```
+
+## Features
+
+- **Environment-variable config** -- define UPS devices and users with indexed `NUT_UPS_<n>_*` and `NUT_USER_<n>_*` variables, no config files needed
+- **Mounted config support** -- mount NUT config files to `/etc/nut/local/` for full control; env vars and mounted files can be combined
+- **Docker secret passwords** -- credentials resolved from Docker secrets first, env vars as fallback; no default password in multi-user mode
+- **Multiple UPS devices** -- monitor any number of UPS units from one container
+- **Multi-user access control** -- indexed user definitions with per-user upsmon role, actions, and instant commands
+- **Prometheus metrics** -- all numeric NUT variables exported as `mjolnir_*` gauges, plus status flags, device info, enum gauges, and alarm tracking
+- **Health endpoints** -- `/healthz` (UPS responding), `/readyz` (daemons started), `/diagnostics` (JSON dump of all NUT variables with handling status)
 
 ## Setup
 
@@ -82,7 +113,7 @@ secrets:
 
 When `NUT_USER_<n>_*` vars are set, the legacy `NUT_USER`/`NUT_PASSWORD`/`NUT_SERVER` vars are ignored.
 
-Passwords are resolved per user: Docker secret `NUT_USER_<n>_SECRET_NAME` (or convention `nut-user-<n>-password`) → `NUT_USER_<n>_PASSWORD` env var → error. No default password in multi-user mode.
+Passwords are resolved per user: Docker secret `NUT_USER_<n>_SECRET_NAME` (or convention `nut-user-<n>-password`) > `NUT_USER_<n>_PASSWORD` env var > error. No default password in multi-user mode.
 
 ### Environment variable reference
 
@@ -127,7 +158,7 @@ Passwords are resolved per user: Docker secret `NUT_USER_<n>_SECRET_NAME` (or co
 | `NUT_LISTEN` | `0.0.0.0` | Listen address |
 | `NUT_MAXAGE` | `15` | Max driver age (seconds) |
 
-## Prometheus metrics
+## Metrics
 
 Scrape `:9550/metrics`:
 
@@ -165,14 +196,14 @@ Exported metrics:
 
 All metrics carry a `ups="<name>"` label. Enum gauges emit all known values on each scrape (active=1, inactive=0).
 
-## Health checks
+## Endpoints
 
-| Endpoint | Status |
-|----------|--------|
-| `GET :9550/healthz` | 200 if all UPS units respond, 503 otherwise |
-| `GET :9550/readyz` | 200 after daemons started, 503 during startup |
-| `GET :9550/metrics` | Prometheus metrics |
-| `GET :9550/diagnostics` | JSON dump of all NUT variables with handling status |
+| Path | Description |
+|------|-------------|
+| `GET /healthz` | 200 if all UPS units respond, 503 otherwise |
+| `GET /readyz` | 200 after daemons started, 503 during startup |
+| `GET /metrics` | Prometheus metrics |
+| `GET /diagnostics` | JSON dump of all NUT variables with handling status |
 
 ## USB access
 
@@ -190,10 +221,26 @@ docker exec mjolnir upsc ecoflow@localhost
 upsc ecoflow@<host-ip>:3493
 ```
 
-## Listing available drivers
+## Image
+
+- **Registry:** `ghcr.io/st0o0/mjolnir`
+- **Tags:** semantic version (`1.0.0`), `MAJOR.MINOR`, `latest`
+- **Architectures:** `linux/amd64`, `linux/arm64`
+
+Releases are signed with cosign and include SLSA provenance.
+
+## Development
 
 ```bash
-docker run --rm ghcr.io/st0o0/mjolnir --version
+go build -o mjolnir ./cmd/mjolnir
+go test ./...
+go vet ./...
+golangci-lint run
+docker build -t mjolnir:ci .
 ```
 
-Builds for `linux/amd64` and `linux/arm64`. Releases are signed with cosign and include SLSA provenance.
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/); releases and the GHCR image are cut automatically by release-please. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
+## License
+
+MIT (see [LICENSE](LICENSE)).
