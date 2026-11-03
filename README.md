@@ -1,4 +1,4 @@
-# mjolnir
+# mjölnir
 
 [![CI](https://img.shields.io/github/actions/workflow/status/st0o0/mjolnir/ci.yml?style=flat-square&label=CI)](https://github.com/st0o0/mjolnir/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/st0o0/mjolnir?sort=semver&style=flat-square)](https://github.com/st0o0/mjolnir/releases)

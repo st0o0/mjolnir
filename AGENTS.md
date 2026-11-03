@@ -1,4 +1,4 @@
-# Mjolnir
+# mjölnir
 
 NUT (Network UPS Tools) in Docker with a built-in Prometheus exporter. Go entrypoint handles config generation from environment variables, NUT daemon supervision, and metrics export.
 

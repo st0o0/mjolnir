@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in mjolnir!
+Thanks for your interest in mjölnir!
 
 ## Development
 
