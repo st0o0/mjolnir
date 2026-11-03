@@ -44,6 +44,6 @@ Single container bundling NUT daemons and Go entrypoint. USB device passthrough 
 
 ## Security-sensitive areas
 
-- `internal/config/` -- UPS credentials via env vars and Docker secrets (`/run/secrets/`), config file generation with passwords written to `upsd.users` and `upsmon.conf`
-- `internal/config/ownership.go` -- runs as root to chown NUT config files to the `nut` user
-- `internal/nut/` -- process supervision (upsdrvctl, upsd, upsmon) running as root/nut
+- `internal/config/` - UPS credentials via env vars and Docker secrets (`/run/secrets/`), config file generation with passwords written to `upsd.users` and `upsmon.conf`
+- `internal/config/ownership.go` - runs as root to chown NUT config files to the `nut` user
+- `internal/nut/` - process supervision (upsdrvctl, upsd, upsmon) running as root/nut

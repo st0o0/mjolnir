@@ -32,13 +32,13 @@ secrets:
 
 ## Features
 
-- **Environment-variable config** -- define UPS devices and users with indexed `NUT_UPS_<n>_*` and `NUT_USER_<n>_*` variables, no config files needed
-- **Mounted config support** -- mount NUT config files to `/etc/nut/local/` for full control; env vars and mounted files can be combined
-- **Docker secret passwords** -- credentials resolved from Docker secrets first, env vars as fallback; no default password in multi-user mode
-- **Multiple UPS devices** -- monitor any number of UPS units from one container
-- **Multi-user access control** -- indexed user definitions with per-user upsmon role, actions, and instant commands
-- **Prometheus metrics** -- all numeric NUT variables exported as `mjolnir_*` gauges, plus status flags, device info, enum gauges, and alarm tracking
-- **Health endpoints** -- `/healthz` (UPS responding), `/readyz` (daemons started), `/diagnostics` (JSON dump of all NUT variables with handling status)
+- **Environment-variable config** - define UPS devices and users with indexed `NUT_UPS_<n>_*` and `NUT_USER_<n>_*` variables, no config files needed
+- **Mounted config support** - mount NUT config files to `/etc/nut/local/` for full control; env vars and mounted files can be combined
+- **Docker secret passwords** - credentials resolved from Docker secrets first, env vars as fallback; no default password in multi-user mode
+- **Multiple UPS devices** - monitor any number of UPS units from one container
+- **Multi-user access control** - indexed user definitions with per-user upsmon role, actions, and instant commands
+- **Prometheus metrics** - all numeric NUT variables exported as `mjolnir_*` gauges, plus status flags, device info, enum gauges, and alarm tracking
+- **Health endpoints** - `/healthz` (UPS responding), `/readyz` (daemons started), `/diagnostics` (JSON dump of all NUT variables with handling status)
 
 ## Setup
 
