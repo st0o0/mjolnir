@@ -26,7 +26,7 @@ golangci-lint run
 
 ## Conventions
 
-- Go 1.26+, pure Go, no CGO
+- Go 1.27+, pure Go, no CGO
 - Conventional commits: feat/fix/perf/docs/chore/refactor/test/ci/build/deps
 - commitlint enforced, release-please for versioning
 - golangci-lint v2, hadolint for Dockerfile
