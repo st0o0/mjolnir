@@ -1,0 +1,7 @@
+misconfiguration:
+  check:
+    skip:
+      # DS-0002: "Image user should not be root"
+      # mjolnir starts as root for USB device access (upsdrvctl),
+      # file ownership changes (chown), then drops to the nut user internally.
+      - DS-0002
