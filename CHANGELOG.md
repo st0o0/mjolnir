@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.1.5](https://github.com/st0o0/mjolnir/compare/v0.1.4...v0.1.5) (2026-11-20)
+
+
+### Features
+
+* extend docker preset for base image digest pinning + automerge ([41c9842](https://github.com/st0o0/mjolnir/commit/41c9842059a865c7c5e9fa6388144bee366c4363))
+* migrate to modular build and docker workflows ([a5d2241](https://github.com/st0o0/mjolnir/commit/a5d22416c178a184ba260dcda18d892632ebf128))
+* migrate to multi-stage Dockerfile ([3956fbc](https://github.com/st0o0/mjolnir/commit/3956fbc05f5e6f5e452ffaa6d2ea2d3c0d1d73c0))
+* **security:** add source scan on PR/push, registry scan after release ([6e2659c](https://github.com/st0o0/mjolnir/commit/6e2659c243e794a0194d1b1d7294614aea92b027))
+
+
+### Bug Fixes
+
+* add id-token permission for cosign signing in dev builds ([11dafdf](https://github.com/st0o0/mjolnir/commit/11dafdfc1e28b15d303b33c2cd173234216d8cdc))
+* grant contents:read and drop paths filter in dev-build docker job ([3654a3b](https://github.com/st0o0/mjolnir/commit/3654a3ba082fd953cc2f7dc73f920f7ddeb66b5a))
+* grant pull-requests/issues write permission to labeler and label-sync callers ([b9560a9](https://github.com/st0o0/mjolnir/commit/b9560a9c4573fc00dcc21d608c54e8973f744f43))
+* **security:** add packages:read permission for reusable workflow compatibility ([464cdae](https://github.com/st0o0/mjolnir/commit/464cdaefd81c44a01d2c038f8c64908a28f5aa85))
+* **security:** add trivy.yaml with DS-0002 skip and wire trivy-config ([1a77068](https://github.com/st0o0/mjolnir/commit/1a770686a86d4662438d0134d9d9113360e19346))
+* **security:** use .trivyignore for DS-0002 skip instead of trivy.yaml ([483277c](https://github.com/st0o0/mjolnir/commit/483277c279f23dcac09d12742aac58ec42b9cd3a))
+
+
+### Documentation
+
+* add README badges ([7731177](https://github.com/st0o0/mjolnir/commit/773117769ce46f00ed97b49f6b81eb9dd8883167))
+* remove em dashes and simplify wording ([3224a59](https://github.com/st0o0/mjolnir/commit/3224a5957d137f8648d665d711691d5aaa64ed47))
+
+
+### Refactoring
+
+* **security:** remove unused trivy.yaml placeholder ([87ad0c9](https://github.com/st0o0/mjolnir/commit/87ad0c938349345b38edb6bd6e76701c1c42081a))
+* **security:** simplify to fs scan on PR/push and local image scan on schedule ([ab9c736](https://github.com/st0o0/mjolnir/commit/ab9c736b1bf958081bb0461ed7a895c547dd4716))
+
 ## [0.1.4](https://github.com/st0o0/mjolnir/compare/v0.1.3...v0.1.4) (2026-09-12)
 
 
